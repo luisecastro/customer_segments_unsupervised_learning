@@ -74,41 +74,42 @@ def cluster_results(reduced_data, preds, centers, pca_samples):
 
 
 def channel_results(reduced_data, outliers, pca_samples):
-	'''
-	Visualizes the PCA-reduced cluster data in two dimensions using the full dataset
-	Data is labeled by "Channel" and cues added for student-selected sample data
-	'''
+    import matplotlib.cm as cm
+    '''
+    Visualizes the PCA-reduced cluster data in two dimensions using the full dataset
+    Data is labeled by "Channel" and cues added for student-selected sample data
+    '''
 
-	# Check that the dataset is loadable
-	try:
-	    full_data = pd.read_csv("customers.csv")
-	except:
-	    print "Dataset could not be loaded. Is the file missing?"
-	    return False
+    # Check that the dataset is loadable
+    try:
+        full_data = pd.read_csv("customers.csv")
+    except:
+        print "Dataset could not be loaded. Is the file missing?"
+        return False
 
-	# Create the Channel DataFrame
-	channel = pd.DataFrame(full_data['Channel'], columns = ['Channel'])
-	channel = channel.drop(channel.index[outliers]).reset_index(drop = True)
-	labeled = pd.concat([reduced_data, channel], axis = 1)
-	
-	# Generate the cluster plot
-	fig, ax = plt.subplots(figsize = (14,8))
+    # Create the Channel DataFrame
+    channel = pd.DataFrame(full_data['Channel'], columns = ['Channel'])
+    channel = channel.drop(channel.index[outliers]).reset_index(drop = True)
+    labeled = pd.concat([reduced_data, channel], axis = 1)
 
-	# Color map
-	cmap = cm.get_cmap('gist_rainbow')
+    # Generate the cluster plot
+    fig, ax = plt.subplots(figsize = (14,8))
 
-	# Color the points based on assigned Channel
-	labels = ['Hotel/Restaurant/Cafe', 'Retailer']
-	grouped = labeled.groupby('Channel')
-	for i, channel in grouped:   
-	    channel.plot(ax = ax, kind = 'scatter', x = 'Dimension 1', y = 'Dimension 2', \
-	                 color = cmap((i-1)*1.0/2), label = labels[i-1], s=30);
-	    
-	# Plot transformed sample points   
-	for i, sample in enumerate(pca_samples):
-		ax.scatter(x = sample[0], y = sample[1], \
-	           s = 200, linewidth = 3, color = 'black', marker = 'o', facecolors = 'none');
-		ax.scatter(x = sample[0]+0.25, y = sample[1]+0.3, marker='$%d$'%(i), alpha = 1, s=125);
+    # Color map
+    cmap = cm.get_cmap('gist_rainbow')
 
-	# Set plot title
-	ax.set_title("PCA-Reduced Data Labeled by 'Channel'\nTransformed Sample Data Circled");
+    # Color the points based on assigned Channel
+    labels = ['Hotel/Restaurant/Cafe', 'Retailer']
+    grouped = labeled.groupby('Channel')
+    for i, channel in grouped:   
+        channel.plot(ax = ax, kind = 'scatter', x = 'Dimension 1', y = 'Dimension 2', \
+                     color = cmap((int(i)-1)*1.0/2), label = labels[int(i)-1], s=30);
+
+    # Plot transformed sample points   
+    for i, sample in enumerate(pca_samples):
+        ax.scatter(x = sample[0], y = sample[1], \
+               s = 200, linewidth = 3, color = 'black', marker = 'o', facecolors = 'none');
+        ax.scatter(x = sample[0]+0.25, y = sample[1]+0.3, marker='$%d$'%(i), alpha = 1, s=125);
+
+    # Set plot title
+    ax.set_title("PCA-Reduced Data Labeled by 'Channel'\nTransformed Sample Data Circled");
